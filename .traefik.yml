@@ -1,4 +1,4 @@
-displayName: Demo Plugin
+displayName: Path Auth
 type: middleware
 
 import: github.com/aarlint/pathauth
