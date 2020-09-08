@@ -37,15 +37,15 @@ In order to use this middleware you must chain it behind [traefik-forward-auth](
 
     # allows other.user@gmail.com to access path ^/yourmom
     [[http.middlewares.rewrite-foo.plugin.pathauth]]
-      paths:
-        - regex: ^/notls
-          users: 
-            - austin.arlint@gmail.com
-            - poop.breath@gmail.com
-        - regex: ^/yourmom
-          users:
-            - test.user@gmail.com
-            - other.user@gmail.com
+        paths:
+          - regex: ^/notls
+            users: 
+              - austin.arlint@gmail.com
+              - poop.breath@gmail.com
+          - regex: ^/yourmom
+            users:
+              - test.user@gmail.com
+              - other.user@gmail.com
 
 [http.services]
   [http.services.my-service]
