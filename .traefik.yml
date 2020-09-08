@@ -11,7 +11,7 @@ testData:
     - regex: ^/notls*
       users: 
         - austin.arlint@gmail.com
-        - poop.breath@gmail.com
+        - fresh.breath@gmail.com
     - regex: ^/yourmom
       users:
         - test.user@gmail.com
