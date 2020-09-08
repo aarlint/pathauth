@@ -10,9 +10,9 @@ testData:
   paths:
     - regex: ^/notls*
       users: 
-        - austin.arlint@global.ntt
-        - poop.breath@global.ntt
+        - austin.arlint@gmail.com
+        - poop.breath@gmail.com
     - regex: ^/yourmom
       users:
-        - test.user@global.ntt
-        - other.user@global.ntt
+        - test.user@gmail.com
+        - other.user@gmail.com
