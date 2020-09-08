@@ -8,7 +8,7 @@ summary: 'path authorize users, expects cookie from _forward_auth'
 testData:
   base: whoami.localhost
   paths:
-    - regex: ^/notls
+    - regex: ^/notls*
       users: 
         - austin.arlint@global.ntt
         - poop.breath@global.ntt
