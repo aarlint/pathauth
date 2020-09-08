@@ -24,32 +24,37 @@ and uses the `pathauth` middleware plugin to ensure the user's email is allowed 
 In order to use this middleware you must chain it behind [traefik-forward-auth](https://github.com/thomseddon/traefik-forward-auth).
 
 
-```toml
-[http.routers]
-  [http.routers.my-router]
-    rule = "Host(`localhost`)"
-    middlewares = ["pathauth-foo"]
-    service = "my-service"
+```yaml
+http:
+  # Add the router
+  routers:
+    my-router:
+      entryPoints:
+      - http
+      middlewares:
+      - pathauth
+      service: service-foo
+      rule: Path(`/foo`)
 
-[http.middlewares]
-  [http.middlewares.pathauth-foo.plugin.pathauth]
-
-
-    # allows other.user@gmail.com to access path ^/yourmom
-    [[http.middlewares.rewrite-foo.plugin.pathauth]]
+  # Add the middleware
+  middlewares:
+    pathauth:
+      plugin:
         paths:
           - regex: ^/notls
             users: 
               - austin.arlint@gmail.com
-              - poop.breath@gmail.com
+              - new.breath@gmail.com
           - regex: ^/yourmom
             users:
               - test.user@gmail.com
               - other.user@gmail.com
 
-[http.services]
-  [http.services.my-service]
-    [http.services.my-service.loadBalancer]
-      [[http.services.my-service.loadBalancer.servers]]
-        url = "http://127.0.0.1"
+  # Add the service
+  services:
+    service-foo:
+      loadBalancer:
+        servers:
+        - url: http://localhost:5000/
+        passHostHeader: false
 ```
