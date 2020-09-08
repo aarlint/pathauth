@@ -1,0 +1,18 @@
+displayName: Demo Plugin
+type: middleware
+
+import: github.com/aarlint/pathauth
+
+summary: 'path authorize users, expects cookie from _forward_auth'
+
+testData:
+  base: whoami.localhost
+  paths:
+    - regex: ^/notls
+      users: 
+        - austin.arlint@global.ntt
+        - poop.breath@global.ntt
+    - regex: ^/yourmom
+      users:
+        - test.user@global.ntt
+        - other.user@global.ntt
