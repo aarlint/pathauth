@@ -77,6 +77,7 @@ func (a *PathAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 	if !authenticated {
 		rw.WriteHeader(http.StatusForbidden)
+		return
 	}
 	a.next.ServeHTTP(rw, req)
 }
