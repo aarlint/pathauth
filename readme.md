@@ -1,6 +1,6 @@
 # Path Auth
 
-Path auth is a middleware plugin for [Traefik](https://github.com/containous/traefik) which enables authorization on the path when chained behind [traefik-forward-auth](https://github.com/thomseddon/traefik-forward-auth), making it possible to place simple user authorization based on regex and userlists defined in middleware.
+Path auth is a middleware plugin for [Traefik](https://github.com/containous/traefik) which enables authorization on the path when chained behind [traefik-forward-auth](https://github.com/thomseddon/traefik-forward-auth) or basic auth, making it possible to place simple user authorization based on regex and userlists defined in middleware.
 
 ## Configuration
 
@@ -40,16 +40,25 @@ http:
   middlewares:
     pathauth:
       plugin:
+        groups:
+        #group key names can be anything you want
+          admin:
+            - professor.professerton@gmail.com
+            - austin.arlint@gmail.com
+            
         paths:
-          - regex: ^/notls
+          - regex: ^/notls$
+            groups:
+              - admin
+          # this path is accessible by anyone who makes it here because public key = true
+          - regex: ^/public$
+            public: true
+          # this path is accessible by anyone listed in the admin group plus new.breath@gmail.com
+          - regex: ^/other$
             users: 
-              - austin.arlint@gmail.com
               - new.breath@gmail.com
-          - regex: ^/yourmom
-            users:
-              - test.user@gmail.com
-              - other.user@gmail.com
-
+            groups:
+              - admin
   # Add the service
   services:
     service-foo:
