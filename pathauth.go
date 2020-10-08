@@ -4,10 +4,30 @@ package pathauth
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 )
+
+var (
+	AccessLogger  *log.Logger
+	WarningLogger *log.Logger
+	InfoLogger    *log.Logger
+	ErrorLogger   *log.Logger
+)
+
+func init() {
+	file, err := os.OpenFile("/var/log/pathauth.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	AccessLogger = log.New(file, "ACCESS: ", log.Ldate|log.Ltime)
+	InfoLogger = log.New(file, "INFO: ", log.Ldate|log.Ltime)
+	WarningLogger = log.New(file, "WARNING: ", log.Ldate|log.Ltime)
+	ErrorLogger = log.New(file, "ERROR: ", log.Ldate|log.Ltime)
+}
 
 // Config the plugin configuration.
 type Config struct {
@@ -38,7 +58,6 @@ type PathAuth struct {
 
 // New created a new PathAuth plugin.
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
-	fmt.Println(config.Groups)
 	publicPaths := []*regexp.Regexp{}
 	users := make(map[string][]*regexp.Regexp)
 	// create map of user and regexs
@@ -86,16 +105,21 @@ func (a *PathAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		user = basicAuthUser
 	}
 	if user == "" {
-		fmt.Printf("cannot determine current user\r\n")
+		WarningLogger.Println("No user found in header _forward_auth or basic auth")
 		rw.WriteHeader(http.StatusForbidden)
 		return
 	}
 
 	// loop regex's allowed by user
-
-	currentPath := req.URL.EscapedPath()
+	realIp := req.Header.Get("X-Real-Ip")
+	requestedURL := req.Header.Get("X-Forwarded-Host")
+	requestedPath := req.URL.EscapedPath()
 	for _, regex := range a.users[user] {
-		if regex.MatchString(currentPath) {
+		if regex.MatchString(requestedPath) {
+			fmt.Printf(user)
+			req.Header.Add("User", user)
+			req.Header.Set("User", user)
+			AccessLogger.Println(user, "accessed", requestedURL+requestedPath, "from", realIp)
 			a.next.ServeHTTP(rw, req)
 			return
 		}
@@ -104,14 +128,15 @@ func (a *PathAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	// if not authenticated check public paths
 
 	for _, regex := range a.publicPaths {
-		if regex.MatchString(currentPath) {
+		if regex.MatchString(requestedPath) {
 			a.next.ServeHTTP(rw, req)
+			AccessLogger.Println(user, "accessed", "public path", requestedURL+requestedPath, "from", realIp)
 			return
 		}
 	}
 
 	// if still not authed then return status forbidden
-
+	AccessLogger.Println(user, "was denied access to", requestedURL+requestedPath)
 	rw.WriteHeader(http.StatusForbidden)
 	return
 
