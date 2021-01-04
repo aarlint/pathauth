@@ -129,6 +129,9 @@ func (a *PathAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	for _, regex := range a.publicPaths {
 		if regex.MatchString(requestedPath) {
+			fmt.Printf(user)
+			req.Header.Add("User", user)
+			req.Header.Set("User", user)
 			a.next.ServeHTTP(rw, req)
 			AccessLogger.Println(user, "accessed", "public path", requestedURL+requestedPath, "from", realIp)
 			return
