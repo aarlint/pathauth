@@ -21,7 +21,7 @@ var (
 func init() {
 	file, err := os.OpenFile("/var/log/pathauth.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("could not open log file /var/log/pathauth.log")
 	}
 	AccessLogger = log.New(file, "ACCESS: ", log.Ldate|log.Ltime)
 	InfoLogger = log.New(file, "INFO: ", log.Ldate|log.Ltime)
@@ -105,8 +105,8 @@ func (a *PathAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		user = basicAuthUser
 	}
 	if user == "" {
-		WarningLogger.Println("No user found in header _forward_auth or basic auth")
 		rw.WriteHeader(http.StatusForbidden)
+		WarningLogger.Println("No user found in header _forward_auth or basic auth")
 		return
 	}
 
@@ -119,8 +119,8 @@ func (a *PathAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			fmt.Printf(user)
 			req.Header.Add("User", user)
 			req.Header.Set("User", user)
-			AccessLogger.Println(user, "accessed", requestedURL+requestedPath, "from", realIp)
 			a.next.ServeHTTP(rw, req)
+			AccessLogger.Println(user, "accessed", requestedURL+requestedPath, "from", realIp)
 			return
 		}
 	}
@@ -139,8 +139,8 @@ func (a *PathAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// if still not authed then return status forbidden
-	AccessLogger.Println(user, "was denied access to", requestedURL+requestedPath)
 	rw.WriteHeader(http.StatusForbidden)
+	AccessLogger.Println(user, "was denied access to", requestedURL+requestedPath)
 	return
 
 }
